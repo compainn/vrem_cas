@@ -108,20 +108,33 @@ async def referrals(callback: CallbackQuery):
         await callback.message.delete()
         
         from run import bot
-        photo = FSInputFile('image/referal.png')
         
-        await bot.send_photo(
-            chat_id=callback.message.chat.id,
-            photo=photo,
-            caption=f"<b>Реферальная программа</b>\n\n"
-                    f"<blockquote>Реферальный баланс: <code>{info['referral_balance']:.2f}</code>$</blockquote>\n\n"
-                    f"<blockquote>Рефералов: <code>{info['referrals_count']}</code></blockquote>\n\n"
-                    f"Реферальная ссылка:\n"
-                    f"<code>{info['referral_link']}</code>",
-            parse_mode='HTML',
-            reply_markup=kb.referral_kb
-        )
-
+        try:
+            photo = FSInputFile('image/referal.png')
+            
+            await bot.send_photo(
+                chat_id=callback.message.chat.id,
+                photo=photo,
+                caption=f"<b>Реферальная программа</b>\n\n"
+                        f"<blockquote>Реферальный баланс: <code>{info['referral_balance']:.2f}</code>$</blockquote>\n\n"
+                        f"<blockquote>Рефералов: <code>{info['referrals_count']}</code></blockquote>\n\n"
+                        f"Реферальная ссылка:\n"
+                        f"<code>{info['referral_link']}</code>",
+                parse_mode='HTML',
+                reply_markup=kb.referral_kb
+            )
+        except FileNotFoundError:
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=f"<b>Реферальная программа</b>\n\n"
+                     f"<blockquote>Реферальный баланс: <code>{info['referral_balance']:.2f}</code>$</blockquote>\n\n"
+                     f"<blockquote>Рефералов: <code>{info['referrals_count']}</code></blockquote>\n\n"
+                     f"Реферальная ссылка:\n"
+                     f"<code>{info['referral_link']}</code>",
+                parse_mode='HTML',
+                disable_web_page_preview=True,
+                reply_markup=kb.referral_kb
+            )
 
 @router.callback_query(F.data == 'withdraw_referral')
 async def withdraw_referral(callback: CallbackQuery):
