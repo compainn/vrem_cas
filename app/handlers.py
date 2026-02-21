@@ -8,6 +8,10 @@ from aiogram.fsm.context import FSMContext
 from config import CHANNEL_URL, INFO_CHANNEL, MIN_AMOUNT, MIN_WITHDRAWAL, MIN_DEPOSIT, ADMIN_PASSWORD, BOT_USERNAME
 from app.services.cryptobot import CryptoBotAPI
 import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = Router()
 crypto_api = CryptoBotAPI()
@@ -56,6 +60,12 @@ async def start(message: Message):
                          parse_mode='HTML',
                          disable_web_page_preview=True,
                          reply_markup=kb.main)
+
+
+@router.message(Command('reset'))
+async def reset_state(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("✅ Состояние сброшено")
 
 
 @router.message(F.text == '👤 профиль')
@@ -136,6 +146,7 @@ async def referrals(callback: CallbackQuery):
                 reply_markup=kb.referral_kb
             )
 
+
 @router.callback_query(F.data == 'withdraw_referral')
 async def withdraw_referral(callback: CallbackQuery):
     amount = await rq.withdraw_referral_balance(callback.from_user.id)
@@ -169,7 +180,8 @@ async def show_name(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'back_profil')
-async def back_profil(callback: CallbackQuery):
+async def back_profil(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     user = await rq.get_user(callback.from_user.id)
     if user:
         await callback.message.delete()
@@ -239,7 +251,9 @@ async def process_dice_bet(message: Message, state: FSMContext):
     user = await rq.get_user(message.from_user.id)
     if user:
         try:
-            amount = float(message.text)
+            text = message.text.strip().replace(',', '.')
+            amount = float(text)
+            
             if amount < MIN_AMOUNT:
                 await message.answer(f'❌ <b>мин: {MIN_AMOUNT}</b> $', parse_mode='HTML')
                 return
@@ -252,7 +266,6 @@ async def process_dice_bet(message: Message, state: FSMContext):
 
             data = await state.get_data()
             bet_type = data["bet_type"]
-
             hide_nickname = user.hide_username if hasattr(user, 'hide_username') else False
 
             await state.clear()
@@ -271,7 +284,7 @@ async def process_dice_bet(message: Message, state: FSMContext):
             )
 
         except ValueError:
-            await message.answer("❗ Введите число:")
+            await message.answer("❗ Введите число (используйте точку или запятую)")
 
 
 @router.callback_query(F.data == 'game_basketball')
@@ -297,7 +310,9 @@ async def process_basket_bet(message: Message, state: FSMContext):
     user = await rq.get_user(message.from_user.id)
     if user:
         try:
-            amount = float(message.text)
+            text = message.text.strip().replace(',', '.')
+            amount = float(text)
+            
             if amount < MIN_AMOUNT:
                 await message.answer(f'❌ <b>мин: {MIN_AMOUNT}</b>', parse_mode='HTML')
                 return
@@ -310,7 +325,6 @@ async def process_basket_bet(message: Message, state: FSMContext):
 
             data = await state.get_data()
             bet_type = data["bet_type"]
-
             hide_nickname = user.hide_username if hasattr(user, 'hide_username') else False
 
             await state.clear()
@@ -329,7 +343,7 @@ async def process_basket_bet(message: Message, state: FSMContext):
             )
 
         except ValueError:
-            await message.answer("<b>❗ Введите число:</b>", parse_mode='HTML')
+            await message.answer("<b>❗ Введите число (используйте точку или запятую)</b>", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'game_football')
@@ -355,7 +369,9 @@ async def process_football_bet(message: Message, state: FSMContext):
     user = await rq.get_user(message.from_user.id)
     if user:
         try:
-            amount = float(message.text)
+            text = message.text.strip().replace(',', '.')
+            amount = float(text)
+            
             if amount < MIN_AMOUNT:
                 await message.answer(f'❌ <b>мин: {MIN_AMOUNT}$</b>', parse_mode='HTML')
                 return
@@ -368,7 +384,6 @@ async def process_football_bet(message: Message, state: FSMContext):
 
             data = await state.get_data()
             bet_type = data["bet_type"]
-
             hide_nickname = user.hide_username if hasattr(user, 'hide_username') else False
 
             await state.clear()
@@ -387,7 +402,7 @@ async def process_football_bet(message: Message, state: FSMContext):
             )
 
         except ValueError:
-            await message.answer("<b>❗ Введите число:</b>", parse_mode='HTML')
+            await message.answer("<b>❗ Введите число (используйте точку или запятую)</b>", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'game_darts')
@@ -413,7 +428,9 @@ async def process_darts_bet(message: Message, state: FSMContext):
     user = await rq.get_user(message.from_user.id)
     if user:
         try:
-            amount = float(message.text)
+            text = message.text.strip().replace(',', '.')
+            amount = float(text)
+            
             if amount < MIN_AMOUNT:
                 await message.answer(f'❌ <b>мин: {MIN_AMOUNT}$</b>', parse_mode='HTML')
                 return
@@ -426,7 +443,6 @@ async def process_darts_bet(message: Message, state: FSMContext):
 
             data = await state.get_data()
             bet_type = data["bet_type"]
-
             hide_nickname = user.hide_username if hasattr(user, 'hide_username') else False
 
             await state.clear()
@@ -445,7 +461,7 @@ async def process_darts_bet(message: Message, state: FSMContext):
             )
 
         except ValueError:
-            await message.answer("<b>❗ Введите число:</b>", parse_mode='HTML')
+            await message.answer("<b>❗ Введите число (используйте точку или запятую)</b>", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'game_bowling')
@@ -465,7 +481,9 @@ async def process_bowling_bet(message: Message, state: FSMContext):
     user = await rq.get_user(message.from_user.id)
     if user:
         try:
-            amount = float(message.text)
+            text = message.text.strip().replace(',', '.')
+            amount = float(text)
+            
             if amount < MIN_AMOUNT:
                 await message.answer(f'❌ <b>мин: {MIN_AMOUNT}</b>', parse_mode='HTML')
                 return
@@ -478,7 +496,6 @@ async def process_bowling_bet(message: Message, state: FSMContext):
 
             data = await state.get_data()
             bet_type = 'bowling'
-
             hide_nickname = user.hide_username if hasattr(user, 'hide_username') else False
 
             await state.clear()
@@ -497,7 +514,7 @@ async def process_bowling_bet(message: Message, state: FSMContext):
             )
 
         except ValueError:
-            await message.answer("<b>❗ Введите число:</b>", parse_mode='HTML')
+            await message.answer("<b>❗ Введите число (используйте точку или запятую)</b>", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'deposit')
@@ -518,7 +535,8 @@ async def deposit_input_amount(callback: CallbackQuery, state: FSMContext):
 @router.message(DepositStates.waiting_amount)
 async def process_deposit_amount(message: Message, state: FSMContext):
     try:
-        amount = float(message.text)
+        text = message.text.strip().replace(',', '.')
+        amount = float(text)
 
         if amount < MIN_DEPOSIT:
             await message.answer(f"❌ Минимальная сумма: {MIN_DEPOSIT}$")
@@ -550,7 +568,7 @@ async def process_deposit_amount(message: Message, state: FSMContext):
         await state.clear()
 
     except ValueError:
-        await message.answer("❗ Введите число:")
+        await message.answer("❗ Введите число (используйте точку или запятую)")
 
 
 @router.callback_query(F.data == 'check_payment')
