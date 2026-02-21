@@ -54,6 +54,7 @@ async def start(message: Message):
                          f'канал со ставками - <a href="{CHANNEL_URL}">клик</a>\n'
                          f'новостной канал - <a href="{INFO_CHANNEL}">клик</a>',
                          parse_mode='HTML',
+                         disable_web_page_preview=True,
                          reply_markup=kb.main)
 
 
@@ -182,7 +183,9 @@ async def game_list(message: Message):
     await message.answer_dice(emoji='🎲')
     await message.answer(
         f'<blockquote><b>Выберете игру, на которую хотите\nсделать ставку</b></blockquote>\n\nПосле оплаты, ваша ставка сыграет в нашем игровом <a href="{CHANNEL_URL}">канале</a>',
-        parse_mode='HTML', reply_markup=kb.games_list)
+        parse_mode='HTML',
+        disable_web_page_preview=True,
+        reply_markup=kb.games_list)
 
 
 @router.callback_query(F.data == 'game_dice')
@@ -200,7 +203,9 @@ async def back_games_list(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.edit_text(
         f'<blockquote><b>Выберете игру, на которую хотите\nсделать ставку</b></blockquote>\n\nПосле оплаты, ваша ставка сыграет в нашем игровом <a href="{CHANNEL_URL}">канале</a>',
-        parse_mode='HTML', reply_markup=kb.games_list)
+        parse_mode='HTML',
+        disable_web_page_preview=True,
+        reply_markup=kb.games_list)
 
 
 @router.callback_query(F.data.startswith('dice_'))
