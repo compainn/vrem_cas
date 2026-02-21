@@ -110,7 +110,7 @@ async def referrals(callback: CallbackQuery):
         from run import bot
         
         try:
-            photo = FSInputFile('image/referal.png')
+            photo = FSInputFile('image/referal.jpg')
             
             await bot.send_photo(
                 chat_id=callback.message.chat.id,
