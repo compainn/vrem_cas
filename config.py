@@ -1,5 +1,5 @@
 TOKEN = '8537860677:AAGdyuWZbBysGsHLdPOIiU_yD1f-5DGA9V8'
-BOT_USERNAME = 'https://t.me/safneak_cube1_bot'
+BOT_USERNAME = 'safneak_cube1_bot'
 CHANNEL_ID = '@comnataigr'
 CHANNEL_URL = 't.me/comnataigr'
 PROJECT_FAQ = '#'
